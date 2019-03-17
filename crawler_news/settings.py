@@ -14,7 +14,7 @@ BOT_NAME = 'crawler_news'
 SPIDER_MODULES = ['crawler_news.spiders']
 NEWSPIDER_MODULE = 'crawler_news.spiders'
 
-DEADLINE = "01/01/2014 00:00" # DD/MM/YYYY H:M
+DEADLINE = "31.12.2010" # DD.MM.YYYY
 
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
@@ -71,12 +71,12 @@ ROBOTSTXT_OBEY = True
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    # 'crawler_news.middlewares.CrawlerNewsDownloaderMiddleware': 543, # Implementation in DOWNLOADER_MIDDLEWARES
-   # USER_AGENTS 
+   # USER_AGENTS
    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
    'scrapy_useragents.downloadermiddlewares.useragents.UserAgentsMiddleware': 500,
    # ROTATING_PROXY_LIST
-   'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
-   'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
+   # 'rotating_proxies.middlewares.RotatingProxyMiddleware': 610,
+   # 'rotating_proxies.middlewares.BanDetectionMiddleware': 620,
 }
 
 # Implementation in DOWNLOADER_MIDDLEWARES
@@ -84,10 +84,10 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Define used proxies
 ROTATING_PROXY_LIST = [
-  '189.51.153.195:57898', '45.162.37.79:8080', '179.108.187.9:8080', '186.250.55.233:50741', 
-  '177.23.104.38:61536', '191.252.113.207:3128', '187.32.123.177:3128', '45.71.80.34:37122', 
-  '201.87.243.22:8080', '45.162.37.79:8080', '179.108.187.9:8080', '186.250.55.233:50741', 
-  '179.108.187.9:8080', '186.250.55.233:50741', '191.252.113.207:3128', '187.32.123.177:3128', 
+  '189.51.153.195:57898', '45.162.37.79:8080', '179.108.187.9:8080', '186.250.55.233:50741',
+  '177.23.104.38:61536', '191.252.113.207:3128', '187.32.123.177:3128', '45.71.80.34:37122',
+  '201.87.243.22:8080', '45.162.37.79:8080', '179.108.187.9:8080', '186.250.55.233:50741',
+  '179.108.187.9:8080', '186.250.55.233:50741', '191.252.113.207:3128', '187.32.123.177:3128',
   '187.32.123.177:3128', '177.72.92.24:23500'
 ]
 
