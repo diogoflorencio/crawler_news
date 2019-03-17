@@ -49,8 +49,8 @@ class OantagonistaSpider(scrapy.Spider):
         section = response.css('span.categoria a::text').extract_first()
         # get text
         text_article = ""
-        for paragraph in response.css('div.entry-content p::text'):
-      	    text_article = (text_article + paragraph.extract() + " ")
+        for paragraph in response.xpath("//div[@class='entry-content']/p//text()").extract():
+            text_article = text_article + paragraph
 
         article = CrawlerNewsItem(_id=response.request.url, title=title, date=dt_article, text=text_article, section=section)
         
