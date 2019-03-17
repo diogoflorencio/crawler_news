@@ -14,7 +14,7 @@ BOT_NAME = 'crawler_news'
 SPIDER_MODULES = ['crawler_news.spiders']
 NEWSPIDER_MODULE = 'crawler_news.spiders'
 
-DEADLINE = "31.12.2010" # DD.MM.YYYY
+DEADLINE = "01.01.2010" # DD.MM.YYYY
 
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
