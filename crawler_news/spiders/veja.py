@@ -82,13 +82,13 @@ class VejaSpider(scrapy.Spider):
     def format_date(self,date):
         def get_mes(mes_string):
             dic = {'jan': '01', 'fev': '02', 'mar': '03', 'abr': '04', 'maio': '05', 
-            'jun': '06', 'jul': '07', 'agosto': '08', 'set': '09', 'out': '10', 'nov': '11', 'dez': '12'}
+            'jun': '06', 'jul': '07', 'ago': '08', 'set': '09', 'out': '10', 'nov': '11', 'dez': '12'}
             return dic[mes_string]
 
         delimiters_date = u'[^a-zA-Z0-9]'
         date_list = re.sub(delimiters_date, ' ', date).split()
-        date_string_format = date_list[0] + '.' + get_mes(date_list[1]) + '.' + date_list[2]
-        return self.format_day(date_string_format)
+        date_string_format = date_list[0] + '.' + get_mes(date_list[1]) + '.' + date_list[2] + '-' + date_list[3]
+        return int(time.mktime(datetime.datetime.strptime(date_string_format, "%d.%m.%Y-%Hh%M").timetuple()))
 
     def format_day(self, date):
         timestamp = int(time.mktime(datetime.datetime.strptime(date, "%d.%m.%Y").timetuple()))
