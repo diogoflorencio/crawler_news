@@ -18,7 +18,7 @@ DEADLINE = "01.01.2010" # DD.MM.YYYY
 
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
-MONGODB_DB = "news"
+MONGODB_DB = "folha"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENTS = [
