@@ -25,8 +25,8 @@ class CrawlerNewsPipeline(object):
 
     def close_spider(self, spider):
         self.client.close()
-        
-    def process_item(self, item, spider): 
+
+    def process_item(self, item, spider):
         if isinstance(item, CrawlerNewsItem):
             self.db[spider.name].insert_one(item)
         elif isinstance(item, CrawlerNewsCommentItem):
