@@ -29,7 +29,7 @@ class EstadaoSpider(scrapy.Spider):
                     with open('start_urls/estadao.json', 'w') as outfile:
                         json.dump(data, outfile)
                     break
-        # status_urls(response.request.url)
+        status_urls(response.request.url)
 
         for article in response.css("a.link-title::attr(href)"):
         	yield response.follow(article.extract(), self.parse_article)
