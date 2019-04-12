@@ -31,12 +31,18 @@ class EstadaoSpider(scrapy.Spider):
                     break
         status_urls(response.request.url)
 
-        for article in response.css("a.link-title::attr(href)"):
+        articles = response.css("a.link-title::attr(href)")
+
+        for article in articles:
         	yield response.follow(article.extract(), self.parse_article)
-        # get more articles
-        next_page = response.request.url[:768] + str(self.page) + '&config%5Bbusca%5D%5Brows%5D=5&ajax=1'
-        self.page += 1
-        yield response.follow(next_page, self.parse)
+
+        if articles:
+            # get more articles
+            next_page = response.request.url[:768] + str(self.page) + '&config%5Bbusca%5D%5Brows%5D=5&ajax=1'
+            self.page += 1
+            yield response.follow(next_page, self.parse)
+
+
 
     def parse_article(self, response):
         # get title
