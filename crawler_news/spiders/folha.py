@@ -25,7 +25,7 @@ class FolhaSpider(scrapy.Spider):
 			for key, value in data.items():
 				if key in response.request.url:
 					data[key] = response.request.url
-					with open('start_urls/folha.json', 'w') as outfile:  
+					with open('start_urls/folha.json', 'w') as outfile:
 						json.dump(data, outfile)
 					break
 
@@ -44,7 +44,7 @@ class FolhaSpider(scrapy.Spider):
 		# get sub_title
 		sub_title = response.css('h2.c-content-head__subtitle::text').extract_first()
 		# get article's date transform date from isodate to timestamp
-		date = dateutil.parser.parse(response.css('time.c-more-options__published-date::attr(datetime)').extract_first()).strftime('%s') 
+		date = dateutil.parser.parse(response.css('time.c-more-options__published-date::attr(datetime)').extract_first()).strftime('%s')
 		# get author
 		author = response.css('strong.c-signature__author::text').extract_first()
 		# get text
@@ -52,10 +52,8 @@ class FolhaSpider(scrapy.Spider):
 		for paragraph in response.xpath("//div[@class='c-news__body']/p//text()").extract():
 			text = text + paragraph
 		# get section
-		section = response.css('li.c-site-nav__item c-site-nav__item--section a::text').extract_first()  
+		section = response.css('li.c-site-nav__item c-site-nav__item--section a::text').extract_first()
 
-		news = CrawlerNewsItem(
-		_id=response.request.url,title=title, sub_title=sub_title, date=date,
-		author=author, text=text, section=section, url=response.request.url)
-
-		yield news
+		article = CrawlerNewsItem(_id=response.request.url,title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, url=response.request.url)
+		
+		yield article
