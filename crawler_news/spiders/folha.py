@@ -52,8 +52,8 @@ class FolhaSpider(scrapy.Spider):
 		for paragraph in response.xpath("//div[@class='c-news__body']/p//text()").extract():
 			text = text + paragraph
 		# get section
-		section = response.css('li.c-site-nav__item c-site-nav__item--section a::text').extract_first()
+		section = response.css('li.c-site-nav__item.c-site-nav__item--section a::text').extract_first()
 
 		article = CrawlerNewsItem(_id=response.request.url,title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, url=response.request.url)
-		
+
 		yield article
