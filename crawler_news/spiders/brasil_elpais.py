@@ -34,25 +34,25 @@ class BrasilElpaisSpider(scrapy.Spider):
             link_article = article.css("figure a::attr(href)").extract_first()
             yield response.follow(link_article, self.parse_article)
         # get more articles
-        next_page = response.css('li.paginacion-siguiente a::attr(href)').extract_first()
+        next_page = response.css('li.paginacion-siguiente a::attr(href)').extract()
         if next_page is not None:
             yield response.follow(next_page, self.parse)
 
     def parse_article(self, response):
         # get title
-        title = response.css('h1.articulo-titulo ::text').extract_first()
+        title = response.css('h1.font_secondary.color_gray_ultra_dark ::text').extract_first()
         # get sub_title
-        sub_title = response.css('h2.articulo-subtitulo ::text').extract_first()
+        sub_title = response.css('h2.font_secondary.color_gray_dark ::text').extract_first()
         # get article's date
-        date = dateutil.parser.parse(response.css('time.articulo-actualizado ::attr(datetime)').extract_first()).strftime('%s') # transform date from isodate to timestamp
+        date = '' #response.css('div.place_and_time.uppercase.color_gray_medium_lighter span::text').extract_first()
         # get author
-        author = response.css('span.autor-nombre a::text').extract_first()
+        author = response.css('a.color_black ::text').extract_first()
         # get text
         text = ""
-        for paragraph in response.css('div.articulo-cuerpo p::text'):
+        for paragraph in response.css('section.article_body.color_gray_dark p::text'):
             text = (text + paragraph.extract())
         # get section
-        section = response.css('a.enlace span::text').extract_first()
+        section = response.css('a.uppercase.overflow_hidden ::text').extract_first()
 
         news = CrawlerNewsItem(
         title=title, sub_title=sub_title, date=date,
