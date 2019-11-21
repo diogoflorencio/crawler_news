@@ -2,6 +2,8 @@
 import scrapy
 import dateutil.parser
 import json
+import time
+import datetime
 
 from crawler_news.items import CrawlerNewsItem
 
@@ -44,7 +46,9 @@ class BrasilElpaisSpider(scrapy.Spider):
         # get sub_title
         sub_title = response.css('h2.font_secondary.color_gray_dark ::text').extract_first()
         # get article's date
-        date = '' #response.css('div.place_and_time.uppercase.color_gray_medium_lighter span::text').extract_first()
+        date = response.css('div.place_and_time.uppercase.color_gray_medium_lighter span::text').extract()
+        #get last index
+        date = self.getTimestamp(date[len(date) - 1].split())
         # get author
         author = response.css('a.color_black ::text').extract_first()
         # get text
@@ -59,3 +63,10 @@ class BrasilElpaisSpider(scrapy.Spider):
         author=author, text=text, section=section, _id=response.request.url)
 
         yield news
+
+    def getTimestamp(self, date):
+        # format date
+        date_string_format = date[0] + '.' + date[1][1:] + '.' + date[2] + date[3] + date[4]
+        # convert to timestamp
+        timestamp = int(time.mktime(datetime.datetime.strptime(date_string_format, "%d.%m.%Y-%H:%M").timetuple()))
+        return int(timestamp)
