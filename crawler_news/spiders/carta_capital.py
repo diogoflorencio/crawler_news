@@ -2,63 +2,51 @@
 import scrapy
 import time
 import datetime
-import json
 
 from crawler_news.items import CrawlerNewsItem
-
+from crawler_news.helper import getUrls, status_urls
 
 class CartaCapitalSpider(scrapy.Spider):
     name = 'carta_capital'
     allowed_domains = ['cartacapital.com.br']
-    start_urls = []
-
-    def __init__(self, *a, **kw):
-        super(CartaCapitalSpider, self).__init__(*a, **kw)
-        with open('output/carta_capital.json') as json_file:
-                data = json.load(json_file)
-        self.start_urls = list(data.values())
+    start_urls = getUrls(name)
 
     def parse(self, response):
-        def status_output(url):
-            with open('output/carta_capital.json') as json_file:
-                data = json.load(json_file)
-            for key, value in data.items():
-                if key in response.request.url:
-                    data[key] = response.request.url
-                with open('output/carta_capital.json', 'w') as outfile:  
-                    json.dump(data, outfile)
-                break
-
-        status_output(response.request.url)
-
-        for article_link in response.css("h3.eltdf-pt-three-title a::attr(href)"):
-            yield response.follow(article_link.extract(), self.parse_article)
+        # save the current page
+        status_urls(self.name, response.request.url)
+         # get articles
+        articles = response.css("h3.eltdf-pt-three-title a::attr(href)")
+        # crawler each article
+        for article in articles:
+            yield response.follow(article.extract(), self.parse_article)
         # get more articles
         next_page = response.css('div.eltdf-btn.eltdf-bnl-load-more.eltdf-load-more.eltdf-btn-solid a::attr(href)').extract_first()
         if next_page is not None:
 	        yield response.follow(next_page, self.parse)
-
         
-
     def parse_article(self, response):
         # get title
         title = response.css('h1.eltdf-title-text ::text').extract_first()
         # get sub_title
-        sub_title = response.css('div.wpb_wrapper h3::text').extract_first()
+        sub_title = response.css('div.wpb_wrapper h2::text').extract_first()
         # get article's date
        	date = self.format_date(response.css('div.eltdf-post-info-date.entry-date.updated a::text').extract_first())
         # get author
-        author = response.css('a.eltdf-post-info-author-link ::text').extract_first()
+        author = response.css('div.eltdf-post-info-author a ::text').extract_first() 
         # get text
-        text = ""
-        for paragraph in response.css('div.eltdf-post-text p::text'):
+        text = response.css('div.eltdf-post-text-inner.clearfix ::text').extract_first() 
+        for paragraph in response.css('div.eltdf-post-text-inner.clearfix p::text'):
             text = (text + paragraph.extract())
+        # remove footer
+        text = text[:-718]
         # get section
         section = response.css('div.eltdf-post-info-category a::text').extract_first()
+        # get tags
+        tags = []
+        for tag in response.css('a[rel="tag"]::text'):
+            tags.append(tag.extract())
 
-        news = CrawlerNewsItem(
-        title=title, sub_title=sub_title, date=date,
-        author=author, text=text, section=section, _id=response.request.url)
+        news = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, tags=tags, url=response.request.url)
 
         yield news
 
@@ -70,15 +58,10 @@ class CartaCapitalSpider(scrapy.Spider):
 
         def format_dia(dia):
             if(len(dia)==1):
-                dia = '0'+dia
+                dia = '0' + dia
             return dia
 
         date = date.split()
         date_string_format = format_dia(date[0]) + "/" + get_mes(date[2]) + "/" + date[4]
         timestamp = int(time.mktime(datetime.datetime.strptime(date_string_format, "%d/%m/%Y").timetuple()))
         return timestamp
-
-    def get_start_urls(self):
-        with open('/home/diogo/workspace/crawler_news/crawler_news/spiders/output/carta_capital.json') as json_file:
-                data = json.load(json_file)
-        return list(data.values())

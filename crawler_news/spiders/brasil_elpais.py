@@ -1,42 +1,27 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import dateutil.parser
-import json
 import time
 import datetime
 
 from crawler_news.items import CrawlerNewsItem
-
+from crawler_news.helper import getUrls, status_urls
 
 class BrasilElpaisSpider(scrapy.Spider):
     name = 'brasil_elpais'
     allowed_domains = ['brasil.elpais.com']
-    start_urls = []
-
-    def __init__(self, *a, **kw):
-        super(BrasilElpaisSpider, self).__init__(*a, **kw)
-        with open('start_urls/brasil_elpais.json') as json_file:
-                data = json.load(json_file)
-        self.start_urls = list(data.values())
+    start_urls = getUrls(name)
 
     def parse(self, response):
-        def status_urls(url):
-            with open('start_urls/brasil_elpais.json') as json_file:
-                data = json.load(json_file)
-            for key, value in data.items():
-                if key in response.request.url:
-                    data[key] = response.request.url
-                    with open('start_urls/brasil_elpais.json', 'w') as outfile:  
-                        json.dump(data, outfile)
-                    break
-        
-        status_urls(response.request.url)
-
-        for article in response.css("article"):
-            link_article = article.css("figure a::attr(href)").extract_first()
-            yield response.follow(link_article, self.parse_article)
+        # save the current page
+        status_urls(self.name, response.request.url)
+        # get articles
+        articles = response.css("figure a ::attr(href)")
+        # crawler each article
+        for article in articles:
+            yield response.follow(article.extract(), self.parse_article)
         # get more articles
-        next_page = response.css('li.paginacion-siguiente a::attr(href)').extract()
+        next_page = response.css('li.paginacion-siguiente a ::attr(href)').extract()
         if next_page is not None:
             yield response.follow(next_page, self.parse)
 
@@ -47,7 +32,7 @@ class BrasilElpaisSpider(scrapy.Spider):
         sub_title = response.css('h2.font_secondary.color_gray_dark ::text').extract_first()
         # get article's date
         date = response.css('div.place_and_time.uppercase.color_gray_medium_lighter span::text').extract()
-        #get last index
+        # get last index
         date = self.getTimestamp(date[len(date) - 1].split())
         # get author
         author = response.css('a.color_black ::text').extract_first()
@@ -58,15 +43,17 @@ class BrasilElpaisSpider(scrapy.Spider):
         # get section
         section = response.css('a.uppercase.overflow_hidden ::text').extract_first()
 
-        news = CrawlerNewsItem(
-        title=title, sub_title=sub_title, date=date,
-        author=author, text=text, section=section, _id=response.request.url)
+        article = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, text=text, section=section, url=response.request.url)
 
-        yield news
+        yield article
 
     def getTimestamp(self, date):
+        def get_mes(mes_string):
+            dic = {'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'may': '05', 
+            'jun': '06', 'jul': '07', 'ago': '08', 'set': '09', 'oct': '10', 'nov': '11', 'dec': '12'}
+            return dic[mes_string]
         # format date
-        date_string_format = date[0] + '.' + date[1][1:] + '.' + date[2] + date[3] + date[4]
+        date_string_format = date[0] + '.' + get_mes(date[1]) + '.' + date[2] + date[3] + date[4]
         # convert to timestamp
         timestamp = int(time.mktime(datetime.datetime.strptime(date_string_format, "%d.%m.%Y-%H:%M").timetuple()))
         return int(timestamp)

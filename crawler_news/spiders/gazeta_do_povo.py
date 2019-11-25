@@ -37,38 +37,18 @@ class GazetaDoPovoSpider(scrapy.Spider):
 		# get author
 		author = response.css('li.c-autor span::text').extract_first()
 		# get date
-		date = self.format_date(response.css('li.data-publicacao time::text').extract_first())
+		date = ''#self.format_date(response.css('li.data-publicacao time::text').extract_first())
 		# get section
 		section = response.css('a.c-nome-editoria span::text').extract_first()
 		# get text
 		text=""
 		for paragraph in response.css('div.gp-coluna.col-6.texto-materia.paywall-google p::text'):
 			text = (text + paragraph.extract())
-		
-		# get comments
-		self.token = response.css('div.sociabilizacao-load-area ::attr(data-token)').extract_first()
-		link_comments = 'https://live.gazetadopovo.com.br/webservice/comentario/abaComentarios?comentario=&token=' + self.token
-		yield response.follow(link_comments, self.parse_comments)
+	
 
 		article = CrawlerNewsItem(title=title, sub_title=sub_title, author=author, date=date, text=text, section=section, _id=response.request.url)
 
 		yield article
-
-	def parse_comments(self, response):
-		jsonresponse = json.loads(response.body_as_unicode())
-		for article_comment in jsonresponse['delivery']['comentarios']:
-			commment = CrawlerNewsCommentItem(
-				id_article=article_comment['materia_url'], 
-				date=article_comment['data_comentario'],
-				author=article_comment['tooltip_nome_exibicao'], 
-				text=article_comment['comentario'],
-				hash_user=article_comment['tooltip_usuario_hash'])
-
-			yield commment
-		#  get more comments
-		if jsonresponse['delivery']['paginacao']['proxima'] is not False:
-			link_more_comments = 'https://live.gazetadopovo.com.br/webservice/comentario/abaComentarios?offset=' + str(jsonresponse['delivery']['paginacao']['proxima'])+'&comentario=&token=' + self.token
-			yield response.follow(link_more_comments, self.parse_comments)
 
 	def format_date(self, date):
 		date_string_format = str(date)[1:-1] #problema

@@ -1,37 +1,23 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import dateutil.parser
-import json
 
 from crawler_news.items import CrawlerNewsItem
 from crawler_news.items import CrawlerNewsCommentItem
+from crawler_news.helper import getUrls, status_urls
 
 
 class FolhaSpider(scrapy.Spider):
 	name = 'folha'
 	allowed_domains = ['folha.uol.com.br']
-	start_urls = []
-
-	def __init__(self, *a, **kw):
-		super(FolhaSpider, self).__init__(*a, **kw)
-		with open('start_urls/folha.json') as json_file:
-			data = json.load(json_file)
-		self.start_urls = list(data.values())
+	start_urls = getUrls(name)
 
 	def parse(self, response):
-		def status_urls(url):
-			with open('start_urls/folha.json') as json_file:
-				data = json.load(json_file)
-			for key, value in data.items():
-				if key in response.request.url:
-					data[key] = response.request.url
-					with open('start_urls/folha.json', 'w') as outfile:
-						json.dump(data, outfile)
-					break
-
-		status_urls(response.request.url)
-
-		for article in response.css("div.c-headline__content a::attr(href)"):
+		# save the current page
+		status_urls(self.name, response.request.url)
+		# get articles
+		articles = response.css("div.c-headline__content a::attr(href)")
+		for article in articles:
 			yield response.follow(article.extract(), self.parse_article)
 		# get more articles
 		next_page = response.css('li.c-pagination__arrow a::attr(href)')
@@ -54,6 +40,11 @@ class FolhaSpider(scrapy.Spider):
 		# get section
 		section = response.css('li.c-site-nav__item.c-site-nav__item--section a::text').extract_first()
 
-		article = CrawlerNewsItem(_id=response.request.url,title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, url=response.request.url)
+		article = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, url=response.request.url)
 
 		yield article
+
+		# get comments PROBLEMA
+		for (text_comment, author_comment) in zip(response.css('div.comment-body p::text'), response.css('div.u-clearfix h3::text')):
+			comment = CrawlerNewsCommentItem(author=author_comment.extract(), text=text_comment.extract(), id_article=response.request.url)
+			yield comment

@@ -16,12 +16,14 @@ class CrawlerNewsItem(scrapy.Item):
     section = scrapy.Field()
     text = scrapy.Field()
     url = scrapy.Field()
+    tags = scrapy.Field()
 
 class CrawlerNewsCommentItem(scrapy.Item):
     id_article = scrapy.Field()
     date = scrapy.Field()
     author = scrapy.Field()
     text = scrapy.Field()
+    likes = scrapy.Field()
 
 class CrawlerNewsMetaDataItem(scrapy.Item):
     _id = scrapy.Field()
