@@ -32,20 +32,41 @@ class EstadaoSpider(scrapy.Spider):
         sub_title = response.css('h2.n--noticia__subtitle::text').extract_first()
         # get article's date
         date = response.css('div.n--noticia__state-desc p::text').extract_first()
+        if date is None:
+            element = response.css('div.n--noticia__state p::text')
+            author = element.extract_first()
+            date = element.extract()
+            # get the last index
+            date = date[len(date)-1]
+        else:
+            # get author
+            author = response.css('div.n--noticia__state-title::text').extract_first()
+
         # transform article's date from isodate to timestamp
         date = self.format_date(date)
         # get article's section
         section = response.css('div.header-current-page.cor-e a::text').extract_first()
-        # get author
-        author = response.css('div.n--noticia__state-title::text').extract_first()
         # get text
         text = ""
         for paragraph in response.css('div.n--noticia__content.content p::text').extract():
             text = text + paragraph
+        # get tags
+        tags = []
+        for tag in response.css('a.n--noticias__tags__link::text'):
+            tags.append(tag.extract())
 
-        article = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, text=text, section=section, url=response.request.url)
+        article = CrawlerNewsItem(_id=response.request.url, author=author, title=title, sub_title=sub_title, date=date, text=text, section=section, tags=tags, url=response.request.url)
 
         yield article
+
+        # get comments
+        # for (text_comment, author_comment) in zip(response.css(str('span.comment_P_1.3101312_iframe-line ::text')), response.css('span.AuthorName__name___3O4jF::text')):
+        #     comment = CrawlerNewsCommentItem(
+        #       author=author_comment.extract(),
+        #       text=text_comment.extract(), 
+        #       id_article=response.request.url)
+
+        #     yield comment
 
     def format_date(self,date):
         def get_mes(mes_string):

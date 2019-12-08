@@ -43,7 +43,7 @@ class CartaCapitalSpider(scrapy.Spider):
         section = response.css('div.eltdf-post-info-category a::text').extract_first()
         # get tags
         tags = []
-        for tag in response.css('a[rel="tag"]::text'):
+        for tag in response.css('div.eltdf-tags a[rel="tag"]::text'):
             tags.append(tag.extract())
 
         news = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, tags=tags, url=response.request.url)

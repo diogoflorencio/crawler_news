@@ -40,10 +40,14 @@ class BrasilElpaisSpider(scrapy.Spider):
         text = ""
         for paragraph in response.css('section.article_body.color_gray_dark p::text'):
             text = (text + paragraph.extract())
+        # get tags
+        tags = []
+        for tag in response.css('li.tags_item.capitalize.flex.align_items_center a::text'):
+            tags.append(tag.extract())
         # get section
         section = response.css('a.uppercase.overflow_hidden ::text').extract_first()
 
-        article = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, text=text, section=section, url=response.request.url)
+        article = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, text=text, section=section, tags=tags, url=response.request.url)
 
         yield article
 
