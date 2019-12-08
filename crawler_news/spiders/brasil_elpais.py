@@ -55,7 +55,7 @@ class BrasilElpaisSpider(scrapy.Spider):
         def get_mes(mes_string):
             dic = {'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'may': '05', 
             'jun': '06', 'jul': '07', 'ago': '08', 'set': '09', 'oct': '10', 'nov': '11', 'dec': '12'}
-            return dic[mes_string]
+            return dic[mes_string.lower()]
         # format date
         date_string_format = date[0] + '.' + get_mes(date[1]) + '.' + date[2] + date[3] + date[4]
         # convert to timestamp
