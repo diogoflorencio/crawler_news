@@ -60,13 +60,21 @@ class EstadaoSpider(scrapy.Spider):
         yield article
 
         # get comments
-        # for (text_comment, author_comment) in zip(response.css(str('span.comment_P_1.3101312_iframe-line ::text')), response.css('span.AuthorName__name___3O4jF::text')):
-        #     comment = CrawlerNewsCommentItem(
-        #       author=author_comment.extract(),
-        #       text=text_comment.extract(), 
-        #       id_article=response.request.url)
+        try:
+            
+            for (text_comment, author_comment, likes_comment) in zip(response.css(str('span.comment_P_1.' + str(response.request.url[-7:]) + '_iframe-line ::text')), 
+                response.css('span.AuthorName__name___3O4jF::text'), response.css('span.talk-plugin-respect-count ::text')):
+                comment = CrawlerNewsCommentItem(
+                  author=author_comment.extract(),
+                  text=text_comment.extract(), 
+                  likes = likes_comment.extract(),
+                  id_article=response.request.url)
 
-        #     yield comment
+                yield comment
+        except :
+            self.logger.info('Without comments on %s', response.url)
+
+        
 
     def format_date(self,date):
         def get_mes(mes_string):
