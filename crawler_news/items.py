@@ -24,6 +24,7 @@ class CrawlerNewsCommentItem(scrapy.Item):
     author = scrapy.Field()
     text = scrapy.Field()
     likes = scrapy.Field()
+    dislikes = scrapy.Field()
 
 class CrawlerNewsMetaDataItem(scrapy.Item):
     _id = scrapy.Field()
