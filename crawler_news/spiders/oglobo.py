@@ -5,36 +5,18 @@ import time
 import datetime
 import dateutil.parser
 
-from crawler_news.items import CrawlerNewsItem
-from crawler_news.items import CrawlerNewsCommentItem
-from crawler_news.items import CrawlerNewsMetaDataItem
+from crawler_news.items import CrawlerNewsItem, CrawlerNewsCommentItem, CrawlerNewsMetaDataItem
+from crawler_news.helper import getUrls, status_urls
 
 
 class OgloboSpider(scrapy.Spider):
     name = 'oglobo'
     allowed_domains = ['oglobo.globo.com']
-    start_urls = []
-
-    def __init__(self, *a, **kw):
-        super(OgloboSpider, self).__init__(*a, **kw)
-        with open('start_urls/oglobo.json') as json_file:
-                data = json.load(json_file)
-        self.start_urls = list(data.values())
-
+    start_urls = getUrls(name)
 
     def parse(self, response):
-        def status_urls(url):
-            with open('start_urls/oglobo.json') as json_file:
-                data = json.load(json_file)
-            for key, value in data.items():
-                if key in response.request.url:
-                    data[key] = response.request.url
-                    with open('start_urls/oglobo.json', 'w') as outfile:  
-                        json.dump(data, outfile)
-                    break
-
-        status_urls(response.request.url)
-        
+        # save the current page
+        status_urls(self.name, response.request.url) 
         # get just json from ogloboAPI
         jsonresponse = json.loads(response.body_as_unicode())[0]
         for article in jsonresponse['conteudos']:
@@ -51,7 +33,7 @@ class OgloboSpider(scrapy.Spider):
         # get title
         title = response.css('h1.article__title::text').extract_first()
         # get sub_title
-        sub_title = response.css('h2.article__subtitle::text').extract_first()
+        sub_title = response.css('div.article__subtitle::text').extract_first()
         # get article's date
         date = self.format_date(str(response.css('div.article__date::text').extract_first()))
         # get author

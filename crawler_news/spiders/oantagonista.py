@@ -3,8 +3,7 @@ import scrapy
 import dateutil.parser
 import json
 
-from crawler_news.items import CrawlerNewsItem
-from crawler_news.items import CrawlerNewsCommentItem
+from crawler_news.items import CrawlerNewsItem, CrawlerNewsCommentItem
 from crawler_news.helper import getUrls, status_urls
 
 
