@@ -5,33 +5,21 @@ import json
 
 from crawler_news.items import CrawlerNewsItem
 from crawler_news.items import CrawlerNewsCommentItem
+from crawler_news.helper import getUrls, status_urls
 
 
 class OantagonistaSpider(scrapy.Spider):
     name = 'oantagonista'
     allowed_domains = ['oantagonista.com']
-    start_urls = []
-
-    def __init__(self, *a, **kw):
-        super(OantagonistaSpider, self).__init__(*a, **kw)
-        with open('start_urls/oantagonista.json') as json_file:
-                data = json.load(json_file)
-        self.start_urls = list(data.values())
+    start_urls = getUrls(name)
 
     def parse(self, response):
-        def status_urls(url):
-            with open('start_urls/oantagonista.json') as json_file:
-                data = json.load(json_file)
-            for key, value in data.items():
-                if key in response.request.url:
-                    data[key] = response.request.url
-                    with open('start_urls/oantagonista.json', 'w') as outfile:  
-                        json.dump(data, outfile)
-                    break
-
-        status_urls(response.request.url)
-
-        for article in response.css("a.article_link::attr(href)"):
+        # save the current page
+        status_urls(self.name, response.request.url)
+        # get articles
+        articles = response.css("a.article_link::attr(href)")
+        # crawler each article
+        for article in articles:
             yield response.follow(article.extract(), self.parse_article)
         # get more articles
         next_page = response.css('link[rel=next]::attr(href)').extract_first()
@@ -57,7 +45,7 @@ class OantagonistaSpider(scrapy.Spider):
         yield article
         
         # get comments
-        for (text_comment,dt_comment, author_comment) in zip(response.css('div.comment-content p::text'),
+        for (text_comment, dt_comment, author_comment) in zip(response.xpath("//div[@class='comment-content']/p//text()"),
             response.css('div.comment-metadata time::attr(datetime)'), response.css('div.comment-author.vcard b::text')):
             comment = CrawlerNewsCommentItem(
               date=dateutil.parser.parse(dt_comment.extract()).strftime('%s'), # transform comments' date from isodate to timestamp
