@@ -2,12 +2,13 @@
 import scrapy
 import dateutil.parser
 import json
+import time
 
 from crawler_news.items import CrawlerNewsItem, CrawlerNewsCommentItem
 from crawler_news.helper import getUrls, status_urls
 
-
 class OantagonistaSpider(scrapy.Spider):
+
     name = 'oantagonista'
     allowed_domains = ['oantagonista.com']
     start_urls = getUrls(name)
@@ -24,13 +25,13 @@ class OantagonistaSpider(scrapy.Spider):
         next_page = response.css('link[rel=next]::attr(href)').extract_first()
         if next_page is not None:
             yield response.follow(next_page, self.parse)
-	
+
     def parse_article(self, response):
         # get title
         title = response.css('h1::text').extract_first()
         # get article's date
         dt_article = response.css('time.entry-date.published::attr(datetime)').extract_first()
-        # transform article's date from isodate to timestamp 
+        # transform article's date from isodate to timestamp
         dt_article = dateutil.parser.parse(dt_article).strftime('%s')
         # get article's section
         section = response.css('span.categoria a::text').extract_first()
@@ -39,17 +40,17 @@ class OantagonistaSpider(scrapy.Spider):
         for paragraph in response.xpath("//div[@class='entry-content']/p//text()").extract():
             text_article = text_article + paragraph
 
-        article = CrawlerNewsItem(_id=response.request.url, title=title, date=dt_article, text=text_article, section=section)
-        
+        article = CrawlerNewsItem(_id=response.request.url, title=title, date=dt_article, text=text_article, section=section, url=response.request.url)
+
         yield article
-        
+
         # get comments
         for (text_comment, dt_comment, author_comment) in zip(response.xpath("//div[@class='comment-content']/p//text()"),
             response.css('div.comment-metadata time::attr(datetime)'), response.css('div.comment-author.vcard b::text')):
             comment = CrawlerNewsCommentItem(
               date=dateutil.parser.parse(dt_comment.extract()).strftime('%s'), # transform comments' date from isodate to timestamp
               author=author_comment.extract(),
-              text=text_comment.extract(), 
+              text=text_comment.extract(),
               id_article=response.request.url)
 
             yield comment
