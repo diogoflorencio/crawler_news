@@ -7,6 +7,7 @@ from crawler_news.items import CrawlerNewsItem
 from crawler_news.helper import getUrls, status_urls
 
 class CartaCapitalSpider(scrapy.Spider):
+    
     name = 'carta_capital'
     allowed_domains = ['cartacapital.com.br']
     start_urls = getUrls(name)
@@ -23,7 +24,7 @@ class CartaCapitalSpider(scrapy.Spider):
         next_page = response.css('div.eltdf-btn.eltdf-bnl-load-more.eltdf-load-more.eltdf-btn-solid a::attr(href)').extract_first()
         if next_page is not None:
 	        yield response.follow(next_page, self.parse)
-        
+
     def parse_article(self, response):
         # get title
         title = response.css('h1.eltdf-title-text ::text').extract_first()
@@ -32,9 +33,9 @@ class CartaCapitalSpider(scrapy.Spider):
         # get article's date
        	date = self.format_date(response.css('div.eltdf-post-info-date.entry-date.updated a::text').extract_first())
         # get author
-        author = response.css('div.eltdf-post-info-author a ::text').extract_first() 
+        author = response.css('div.eltdf-post-info-author a ::text').extract_first()
         # get text
-        text = response.css('div.eltdf-post-text-inner.clearfix ::text').extract_first() 
+        text = response.css('div.eltdf-post-text-inner.clearfix ::text').extract_first()
         for paragraph in response.css('div.eltdf-post-text-inner.clearfix p::text'):
             text = (text + paragraph.extract())
         # remove footer
@@ -51,17 +52,21 @@ class CartaCapitalSpider(scrapy.Spider):
         yield news
 
     def format_date(self, date):
+
         def get_mes(mes_string):
-            dic = {'janeiro': '01', 'fevereiro': '02', u'mar\xe7o': '03', 'abril': '04', 'maio': '05', 
+            dic = {'janeiro': '01', 'fevereiro': '02', u'mar\xe7o': '03', 'abril': '04', 'maio': '05',
             'junho': '06', 'julho': '07', 'agosto': '08', 'setembro': '09', 'outubro': '10', 'novembro': '11', 'dezembro': '12'}
+
             return dic[mes_string]
 
         def format_dia(dia):
             if(len(dia)==1):
                 dia = '0' + dia
+
             return dia
 
         date = date.split()
         date_string_format = format_dia(date[0]) + "/" + get_mes(date[2]) + "/" + date[4]
         timestamp = int(time.mktime(datetime.datetime.strptime(date_string_format, "%d/%m/%Y").timetuple()))
+
         return timestamp

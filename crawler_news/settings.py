@@ -16,9 +16,9 @@ NEWSPIDER_MODULE = 'crawler_news.spiders'
 
 DEADLINE = "01.01.2010" # DD.MM.YYYY
 
-MONGODB_SERVER = "localhost"
+MONGODB_SERVER = "192.168.1.5"
 MONGODB_PORT = 27017
-MONGODB_DB = "folha"
+MONGODB_DB = "news"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENTS = [

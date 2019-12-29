@@ -8,20 +8,23 @@ from crawler_news.items import CrawlerNewsItem
 from crawler_news.helper import getUrls, status_urls
 
 class BrasilElpaisSpider(scrapy.Spider):
+
     name = 'brasil_elpais'
     allowed_domains = ['brasil.elpais.com']
     start_urls = getUrls(name)
+    page = 1
 
     def parse(self, response):
         # save the current page
         status_urls(self.name, response.request.url)
         # get articles
-        articles = response.css("figure a ::attr(href)")
+        articles = response.css("article a ::attr(href)")
         # crawler each article
         for article in articles:
             yield response.follow(article.extract(), self.parse_article)
         # get more articles
-        next_page = response.css('li.paginacion-siguiente a ::attr(href)').extract()
+        self.page = self.page + 1
+        next_page = 'https://brasil.elpais.com/seccion/' + response.request.url.split('/')[4] + '/' + str(self.page) + '/'
         if next_page is not None:
             yield response.follow(next_page, self.parse)
 
@@ -33,7 +36,7 @@ class BrasilElpaisSpider(scrapy.Spider):
         # get article's date
         date = response.css('div.place_and_time.uppercase.color_gray_medium_lighter span::text').extract()
         # get last index
-        date = self.getTimestamp(date[len(date) - 1].split())
+        date = ' '# self.getTimestamp(date[len(date) - 1].split())
         # get author
         author = response.css('a.color_black ::text').extract_first()
         # get text
@@ -52,12 +55,15 @@ class BrasilElpaisSpider(scrapy.Spider):
         yield article
 
     def getTimestamp(self, date):
+
         def get_mes(mes_string):
-            dic = {'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'may': '05', 
+            dic = {'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'may': '05',
             'jun': '06', 'jul': '07', 'ago': '08', 'set': '09', 'oct': '10', 'nov': '11', 'dec': '12'}
             return dic[mes_string.lower()]
+
         # format date
         date_string_format = date[0] + '.' + get_mes(date[1]) + '.' + date[2] + date[3] + date[4]
         # convert to timestamp
         timestamp = int(time.mktime(datetime.datetime.strptime(date_string_format, "%d.%m.%Y-%H:%M").timetuple()))
+
         return int(timestamp)

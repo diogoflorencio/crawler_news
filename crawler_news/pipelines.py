@@ -6,7 +6,8 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 from pymongo import MongoClient
-from scrapy.conf import settings
+from scrapy.utils.project import get_project_settings
+settings = get_project_settings()
 
 from crawler_news.items import CrawlerNewsItem
 from crawler_news.items import CrawlerNewsCommentItem
@@ -14,8 +15,8 @@ from crawler_news.items import CrawlerNewsMetaDataItem
 
 
 class CrawlerNewsPipeline(object):
-    client = None;
-    db = None;
+    client = None
+    db = None
 
     def open_spider(self, spider):
         # init client mongo

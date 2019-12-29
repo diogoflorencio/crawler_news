@@ -8,13 +8,11 @@ from crawler_news.items import CrawlerNewsItem
 from crawler_news.items import CrawlerNewsCommentItem
 from crawler_news.helper import getUrls, status_urls
 
-
 class GazetaDoPovoSpider(scrapy.Spider):
+
 	name = 'gazeta_do_povo'
 	allowed_domains = ['gazetadopovo.com.br']
 	start_urls = getUrls(name)
-
-	token = ""
 
 	def parse(self, response):
 		# save the current page
@@ -26,7 +24,7 @@ class GazetaDoPovoSpider(scrapy.Spider):
 			link_article = 'https://gazetadopovo.com.br' + str(article.css("a ::attr(href)").extract_first())
 			yield response.follow(link_article, self.parse_article)
 		# get more articles
-		next_page = 'https://gazetadopovo.com.br' + str(response.css('a[title="Próxima página"] ::attr(href)').extract_first())
+		next_page = response.css('a[aria-label="Próxima Página"] ::attr(href)').extract_first()
 		if next_page is not None:
 			yield response.follow(next_page, self.parse)
 
@@ -45,8 +43,12 @@ class GazetaDoPovoSpider(scrapy.Spider):
 		text=""
 		for paragraph in response.xpath("//div[@class='paywall-google']/p//text()"):
 			text = (text + paragraph.extract())
+		# get tags
+		tags = []
+		for tag in response.css('div.c-list-tags a::text'):
+			tags.append(tag.extract())
 
-		article = CrawlerNewsItem(title=title, sub_title=sub_title, author=author, date=date, text=text, section=section, _id=response.request.url)
+		article = CrawlerNewsItem(title=title, sub_title=sub_title, author=author, date=date, text=text, section=section, tags=tags, _id=response.request.url)
 
 		yield article
 
@@ -57,8 +59,8 @@ class GazetaDoPovoSpider(scrapy.Spider):
               likes=like_comment.extract(),
               dislikes=dislike_comment.extract(),
               author=author_comment.extract(),
-              text=text_comment.extract(), 
-              date= self.format_date_comment(dt_comment.extract()[2]), 
+              text=text_comment.extract(),
+              date= self.format_date_comment(dt_comment.extract()[2]),
               id_article=response.request.url)
 
 			yield comment
@@ -66,8 +68,10 @@ class GazetaDoPovoSpider(scrapy.Spider):
 	def format_date(self, date):
 		date_string_format = str(date)[1:11] + '-' + str(date)[14:19]
 		timestamp = int(time.mktime(datetime.datetime.strptime(date_string_format, "%d/%m/%Y-%H:%M").timetuple()))
+
 		return timestamp
 
 	def format_date_comment(self, days):
 		date_N_days_ago = datetime.datetime.now() - datetime.timedelta(days=int(days))
+
 		return int(time.mktime(date_N_days_ago.timetuple()))

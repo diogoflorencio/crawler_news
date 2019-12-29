@@ -1,1 +1,13 @@
-{"pais": "https://oglobo.globo.com/api/v1/vermais/pais/conteudo.json?pagina=1&versao=v1", "sociedade": "https://oglobo.globo.com/api/v1/vermais/sociedade/conteudo.json?pagina=1&versao=v1", "cultura": "https://oglobo.globo.com/api/v1/vermais/cultura/conteudo.json?pagina=1&versao=v1", "mundo": "https://oglobo.globo.com/api/v1/vermais/mundo/conteudo.json?pagina=1&versao=v1", "economia": "https://oglobo.globo.com/api/v1/vermais/economia/conteudo.json?pagina=1&versao=v1"}
+{
+  "pais": "https://oglobo.globo.com/api/v1/vermais/pais/conteudo.json?pagina=1&versao=v1",
+  "sociedade": "https://oglobo.globo.com/api/v1/vermais/sociedade/conteudo.json?pagina=1&versao=v1",
+  "cultura": "https://oglobo.globo.com/api/v1/vermais/cultura/conteudo.json?pagina=1&versao=v1",
+  "mundo": "https://oglobo.globo.com/api/v1/vermais/mundo/conteudo.json?pagina=1&versao=v1",
+  "economia": "https://oglobo.globo.com/api/v1/vermais/economia/conteudo.json?pagina=1&versao=v1",
+  "tecnologia": "https://oglobo.globo.com/api/v1/vermais/tecnologia/conteudo.json?pagina=1&versao=v1",
+  "saude": "https://oglobo.globo.com/api/v1/vermais/saude/conteudo.json?pagina=1&versao=v1",
+  "ciencia": "https://oglobo.globo.com/api/v1/vermais/ciencia/conteudo.json?pagina=1&versao=v1",
+  "esportes": "https://oglobo.globo.com/api/v1/vermais/esportes/conteudo.json?pagina=1&versao=v1",
+  "educacao": "https://oglobo.globo.com/api/v1/vermais/educacao/conteudo.json?pagina=1&versao=v1",
+  "opiniao": "https://oglobo.globo.com/api/v1/vermais/opiniao/conteudo.json?pagina=1&versao=v1"
+}
