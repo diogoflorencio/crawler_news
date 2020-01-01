@@ -5,7 +5,7 @@ import json
 import time
 
 from crawler_news.items import CrawlerNewsItem, CrawlerNewsCommentItem
-from crawler_news.helper import getUrls, status_urls
+from crawler_news.helper import getUrls, status_urls, check_date
 
 class OantagonistaSpider(scrapy.Spider):
 
@@ -41,6 +41,7 @@ class OantagonistaSpider(scrapy.Spider):
             text_article = text_article + paragraph
 
         article = CrawlerNewsItem(_id=response.request.url, title=title, date=dt_article, text=text_article, section=section, url=response.request.url)
+        check_date(article)
 
         yield article
 

@@ -35,6 +35,13 @@ with open('estadao.json') as json_file:
     with open('estadao.json', 'w') as outfile:
         json.dump(data, outfile)
 
+# reset urls folha
+with open('folha.json') as json_file:
+    data = json.load(json_file)
+    data['folha'] = 'http://search.folha.uol.com.br search?q=de&site%5B%5D=online%2Fopiniao&site%5B%5D=online%2Fpensata&site%5B%5D=online%2Fpaineldoleitor&site%5B%5D=online%2Fdinheiro&site%5B%5D=online%2Fcotidiano&site%5B%5D=online%2Fmundo&site%5B%5D=online%2Fesporte&site%5B%5D=online%2Fambiente&site%5B%5D=online%2Fciencia&site%5B%5D=online%2Fcomida&site%5B%5D=online%2Feducacao&site%5B%5D=online%2Fequilibrio&sd=01%2F01%2F2010&ed=31%2F12%2F2018&periodo=personalizado&sr=2476&results_count=588401&search_time=0%2C074&url=http%3A%2F%2Fsearch.folha.uol.com.br%2Fsearch%3Fq%3Dde%26site%255B%255D%3Donline%252Fopiniao%26site%255B%255D%3Donline%252Fpensata%26site%255B%255D%3Donline%252Fpaineldoleitor%26site%255B%255D%3Donline%252Fdinheiro%26site%255B%255D%3Donline%252Fcotidiano%26site%255B%255D%3Donline%252Fmundo%26site%255B%255D%3Donline%252Fesporte%26site%255B%255D%3Donline%252Fambiente%26site%255B%255D%3Donline%252Fciencia%26site%255B%255D%3Donline%252Fcomida%26site%255B%255D%3Donline%252Feducacao%26site%255B%255D%3Donline%252Fequilibrio%26sd%3D01%252F01%252F2010%26ed%3D31%252F12%252F2018%26periodo%3Dpersonalizado%26sr%3D2451'
+    with open('folha.json', 'w') as outfile:
+        json.dump(data, outfile)
+
 # reset urls gazeta_do_povo
 with open('gazeta_do_povo.json') as json_file:
     data = json.load(json_file)

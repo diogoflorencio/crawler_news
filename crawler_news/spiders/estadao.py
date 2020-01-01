@@ -8,6 +8,7 @@ from crawler_news.items import CrawlerNewsItem
 from crawler_news.helper import getUrls, status_urls
 
 class EstadaoSpider(scrapy.Spider):
+
     name = 'estadao'
     allowed_domains = ['estadao.com.br']
     start_urls = getUrls(name)
@@ -27,33 +28,33 @@ class EstadaoSpider(scrapy.Spider):
 
     def parse_article(self, response):
         # get title
-        title = response.css('h1.n--noticia__title::text').extract_first()
+        title = response.css('h1.n--noticia__title::text').extract_first().strip()
         # get sub_title
-        sub_title = response.css('h2.n--noticia__subtitle::text').extract_first()
+        sub_title = response.css('h2.n--noticia__subtitle::text').extract_first().strip()
         # get article's date
         date = response.css('div.n--noticia__state-desc p::text').extract_first()
         if date is None:
             element = response.css('div.n--noticia__state p::text')
-            author = element.extract_first()
+            author = element.extract_first().strip()
             date = element.extract()
             # get the last index
             date = date[len(date)-1]
         else:
             # get author
-            author = response.css('div.n--noticia__state-title::text').extract_first()
+            author = response.css('div.n--noticia__state-title::text').extract_first().strip()
 
         # transform article's date from isodate to timestamp
         date = self.format_date(date)
         # get article's section
-        section = response.css('div.header-current-page.cor-e a::text').extract_first()
+        section = response.css('div.header-current-page.cor-e a::text').extract_first().strip()
         # get text
         text = ""
         for paragraph in response.css('div.n--noticia__content.content p::text').extract():
-            text = text + paragraph
+            text = text + paragraph.strip()
         # get tags
         tags = []
         for tag in response.css('a.n--noticias__tags__link::text'):
-            tags.append(tag.extract())
+            tags.append(tag.extract().strip())
 
         article = CrawlerNewsItem(_id=response.request.url, author=author, title=title, sub_title=sub_title, date=date, text=text, section=section, tags=tags, url=response.request.url)
 
@@ -61,12 +62,11 @@ class EstadaoSpider(scrapy.Spider):
 
         # get comments
         try:
-            
-            for (text_comment, author_comment, likes_comment) in zip(response.css(str('span.comment_P_1.' + str(response.request.url[-7:]) + '_iframe-line ::text')), 
+            for (text_comment, author_comment, likes_comment) in zip(response.css(str('span.comment_P_1.' + str(response.request.url[-7:]) + '_iframe-line ::text')),
                 response.css('span.AuthorName__name___3O4jF::text'), response.css('span.talk-plugin-respect-count ::text')):
                 comment = CrawlerNewsCommentItem(
-                  author=author_comment.extract(),
-                  text=text_comment.extract(), 
+                  author=author_comment.extract().strip(),
+                  text=text_comment.extract().strip(),
                   likes = likes_comment.extract(),
                   id_article=response.request.url)
 
@@ -74,14 +74,16 @@ class EstadaoSpider(scrapy.Spider):
         except :
             self.logger.info('Without comments on %s', response.url)
 
-        
-
     def format_date(self,date):
+
         def get_mes(mes_string):
             dic = {'janeiro': '01', 'fevereiro': '02', 'março': '03', 'abril': '04', 'maio': '05',
             'junho': '06', 'julho': '07', 'agosto': '08', 'setembro': '09', 'outubro': '10', 'novembro': '11', 'dezembro': '12'}
+
             return dic[mes_string]
+
         # format date
         date_list = date.split()
         date_string_format = date_list[0] + '.' + get_mes(date_list[2]) + '.' + date_list[4] + '-' + date_list[6]
+
         return int(time.mktime(datetime.datetime.strptime(date_string_format, "%d.%m.%Y-%Hh%M").timetuple()))

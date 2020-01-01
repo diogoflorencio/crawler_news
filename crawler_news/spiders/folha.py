@@ -8,6 +8,7 @@ from crawler_news.helper import getUrls, status_urls
 
 
 class FolhaSpider(scrapy.Spider):
+
 	name = 'folha'
 	allowed_domains = ['folha.uol.com.br']
 	start_urls = getUrls(name)
@@ -26,21 +27,25 @@ class FolhaSpider(scrapy.Spider):
 
 	def parse_article(self, response):
 		# get title
-		title = response.css('h1.c-content-head__title::text').extract_first()
+		title = response.css('h1.c-content-head__title::text').extract_first().strip()
 		# get sub_title
-		sub_title = response.css('h2.c-content-head__subtitle::text').extract_first()
+		sub_title = response.css('h2.c-content-head__subtitle::text').extract_first().strip()
 		# get article's date transform date from isodate to timestamp
 		date = dateutil.parser.parse(response.css('time.c-more-options__published-date::attr(datetime)').extract_first()).strftime('%s')
 		# get author
-		author = response.css('strong.c-signature__author::text').extract_first()
+		author = response.css('strong.c-signature__author::text').extract_first().strip()
 		# get text
 		text = ""
 		for paragraph in response.xpath("//div[@class='c-news__body']/p//text()").extract():
-			text = text + paragraph
+			text = text + paragraph.strip()
 		# get section
-		section = response.css('li.c-site-nav__item.c-site-nav__item--section a::text').extract_first()
+		section = response.css('li.c-site-nav__item.c-site-nav__item--section a::text').extract_first().strip()
+		# get tags
+		tags = []
+		for tag in response.css('a.c-topics__link ::text'):
+		    tags.append(tag.extract())
 
-		article = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, url=response.request.url)
+		article = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, tags=tags, url=response.request.url)
 
 		yield article
 

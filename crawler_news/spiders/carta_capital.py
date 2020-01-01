@@ -7,7 +7,7 @@ from crawler_news.items import CrawlerNewsItem
 from crawler_news.helper import getUrls, status_urls
 
 class CartaCapitalSpider(scrapy.Spider):
-    
+
     name = 'carta_capital'
     allowed_domains = ['cartacapital.com.br']
     start_urls = getUrls(name)
@@ -47,9 +47,10 @@ class CartaCapitalSpider(scrapy.Spider):
         for tag in response.css('div.eltdf-tags a[rel="tag"]::text'):
             tags.append(tag.extract())
 
-        news = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, tags=tags, url=response.request.url)
+        article = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, author=author, text=text, section=section, tags=tags, url=response.request.url)
+        check_date(article)
 
-        yield news
+        yield article
 
     def format_date(self, date):
 
