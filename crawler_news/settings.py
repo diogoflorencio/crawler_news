@@ -16,7 +16,7 @@ NEWSPIDER_MODULE = 'crawler_news.spiders'
 
 LIMIT_DATE = '01.01.2018' # DD.MM.YYYY
 
-MONGODB_SERVER = "localhost"
+MONGODB_SERVER = "192.168.1.7"
 MONGODB_PORT = 27017
 MONGODB_DB = "news"
 
