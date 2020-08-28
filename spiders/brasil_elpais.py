@@ -30,15 +30,15 @@ class BrasilElpaisSpider(scrapy.Spider):
 
     def parse_article(self, response):
         # get title
-        title = response.css('h1.font_secondary.color_gray_ultra_dark ::text').extract_first()
+        title = response.css('h1.font_secondary.color_gray_ultra_dark ::text').extract_first().strip()
         # get sub_title
-        sub_title = response.css('h2.font_secondary.color_gray_dark ::text').extract_first()
+        sub_title = response.css('h2.font_secondary.color_gray_dark ::text').extract_first().strip()
         # get article's date
-        date = response.css('div.place_and_time.uppercase.color_gray_medium_lighter a::text').extract_first()
+        date = response.css('div.place_and_time.uppercase.color_gray_medium_lighter span::text').extract()
         # get last index
-        date = self.getTimestamp(date.split())
+        date = ' '# self.getTimestamp(date[len(date) - 1].split())
         # get author
-        author = response.css('a.color_black ::text').extract_first()
+        author = response.css('a.color_black ::text').extract_first().strip()
         # get text
         text = ""
         for paragraph in response.css('section.article_body.color_gray_dark p::text'):
@@ -46,11 +46,12 @@ class BrasilElpaisSpider(scrapy.Spider):
         # get tags
         tags = []
         for tag in response.css('li.tags_item.capitalize.flex.align_items_center a::text'):
-            tags.append(tag.extract())
+            tags.append(tag.extract().strip())
         # get section
-        section = response.css('a.uppercase.overflow_hidden ::text').extract_first()
+        section = response.css('a.uppercase.overflow_hidden ::text').extract_first().strip()
 
         article = CrawlerNewsItem(_id=response.request.url, title=title, sub_title=sub_title, date=date, text=text, section=section, tags=tags, url=response.request.url)
+        check_date(article)
 
         yield article
 
@@ -58,7 +59,7 @@ class BrasilElpaisSpider(scrapy.Spider):
 
         def get_mes(mes_string):
             dic = {'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'may': '05',
-            'jun': '06', 'jul': '07', 'ago': '08', 'set': '09', 'oct': '10', 'nov': '11', 'dic': '12'}
+            'jun': '06', 'jul': '07', 'ago': '08', 'set': '09', 'oct': '10', 'nov': '11', 'dec': '12'}
             return dic[mes_string.lower()]
 
         # format date

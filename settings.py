@@ -18,7 +18,7 @@ LIMIT_DATE = '01.01.2018' # DD.MM.YYYY
 
 MONGODB_SERVER = "192.168.1.7"
 MONGODB_PORT = 27017
-MONGODB_DB = "el_pais"
+MONGODB_DB = "news"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENTS = [
