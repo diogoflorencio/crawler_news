@@ -85,3 +85,13 @@ with open('veja.json') as json_file:
     data['veja'] = 'https://veja.abril.com.br/?infinity=infinite_scroll&page=0&order=DESC'
     with open('veja.json', 'w') as outfile:
         json.dump(data, outfile)
+
+# reset urls brasil247
+with open('brasil247.json') as json_file:
+    data = json.load(json_file)
+    data['poder'] = 'https://www.brasil247.com/poder'
+    data['brasil'] = 'https://www.brasil247.com/brasil'
+    data['mundo'] = 'https://www.brasil247.com/mundo'
+    data['economia'] = 'https://www.brasil247.com/economia'
+    with open('brasil247.json', 'w') as outfile:
+        json.dump(data, outfile)
